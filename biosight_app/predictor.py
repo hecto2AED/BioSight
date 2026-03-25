@@ -16,7 +16,7 @@ from ultralytics import YOLO
 # =========================
 
 DEFAULT_WEIGHTS_PATH = r"biosight_app/weights/best.pt"
-DEFAULT_OUTPUT_DIR = Path("outputs")
+DEFAULT_OUTPUT_DIR = r"biosight_app/outputs"
 
 CONF_THRESHOLD = 0.43
 IOU_THRESHOLD = 0.45
