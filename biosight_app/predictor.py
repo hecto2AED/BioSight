@@ -15,7 +15,7 @@ from ultralytics import YOLO
 # Configuración por defecto
 # =========================
 
-DEFAULT_WEIGHTS_PATH = r"/Users/hector/Desktop/BioSight/BioSight/biosight_app/weights/best.pt"
+DEFAULT_WEIGHTS_PATH = r"biosight_app/weights/best.pt"
 DEFAULT_OUTPUT_DIR = Path("outputs")
 
 CONF_THRESHOLD = 0.43
