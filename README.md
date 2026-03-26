@@ -1,4 +1,5 @@
 The FULL pipeline can be found in the file: `final_cell_count_pipeline.ipynb`.
+
 The RESULTS for VALIDATION and TEST can be found in their respective folders inside the folder: `salida_final`.
 
 # **BioSight Cell Vision**
