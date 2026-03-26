@@ -1,3 +1,5 @@
+The FULL pipeline can be found in the file: `final_cell_count_pipeline.ipynb`.
+
 # **BioSight Cell Vision**
 
 BioSight Cell Vision is a computer vision pipeline for automated cell detection and counting in hemocytometer microscopy images. The project uses a fine-tuned YOLO11s object detection model to identify and classify live and dead cells, generate annotated images, and produce tabular reports with total counts and viability estimates.
