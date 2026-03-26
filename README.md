@@ -22,6 +22,314 @@ The detector was fine-tuned on labeled hemocytometer datasets where each cell is
 - **A**: alive
 - **D**: dead
 
+
+## **What is YOLO11?**
+
+YOLO11 is a **real-time one-stage object detection model** from Ultralytics. It belongs to the YOLO family, where the model predicts object locations and classes directly from the image in a single forward pass.
+
+The model is designed to balance:
+
+- **speed**
+- **accuracy**
+- **parameter efficiency**
+
+Like other modern YOLO detectors, YOLO11 is structured into three main parts:
+
+- **Backbone** → extracts visual features from the input image
+- **Neck** → fuses features from different scales
+- **Head** → predicts bounding boxes and object classes
+
+YOLO11 keeps the overall YOLO design philosophy, but improves performance through updated internal blocks such as **C3k2** and **C2PSA**, along with efficient multi-scale feature fusion.
+
+---
+
+## **High-level idea**
+
+Given an input image, YOLO11:
+
+1. processes the image through convolutional layers
+2. extracts increasingly abstract features at multiple resolutions
+3. combines low-level and high-level information
+4. predicts objects at different scales
+
+This makes it well suited for tasks where objects vary in size, including dense microscopy scenes like cell detection.
+
+---
+
+## **Main modules in YOLO11**
+
+### **1. Conv**
+The **Conv** block is the standard convolutional building block used for:
+
+- early feature extraction
+- downsampling
+- channel transformation
+
+These layers progressively reduce spatial resolution while increasing feature richness.
+
+---
+
+### **2. C3k2**
+The **C3k2** block is one of the main repeated modules in YOLO11.
+
+Its role is to:
+
+- refine features efficiently
+- preserve gradient flow
+- improve representation quality without excessive computational cost
+
+It is an evolution of the CSP-style bottleneck design used in earlier YOLO generations.
+
+---
+
+### **3. SPPF**
+**SPPF** stands for **Spatial Pyramid Pooling - Fast**.
+
+Its purpose is to enlarge the effective receptive field so the model can capture broader contextual information without a large computational penalty.
+
+This helps the network understand both local details and wider spatial structure.
+
+---
+
+### **4. C2PSA**
+The **C2PSA** block introduces an attention-based mechanism into YOLO11.
+
+Its purpose is to:
+
+- improve feature selection
+- emphasize relevant spatial/channel information
+- strengthen the model’s ability to focus on important image regions
+
+This is one of the main architectural upgrades that differentiates YOLO11 from older versions.
+
+---
+
+### **5. Upsample**
+The **Upsample** operation increases the spatial resolution of feature maps so that high-level semantic information can be merged with earlier, finer-resolution features.
+
+This is important for recovering detail needed to detect smaller objects.
+
+---
+
+### **6. Concat**
+**Concat** merges feature maps coming from different stages of the network.
+
+This allows YOLO11 to combine:
+
+- **fine spatial detail** from earlier layers
+- **strong semantic information** from deeper layers
+
+This fusion is central to multi-scale detection.
+
+---
+
+### **7. Detect**
+The **Detect** layer is the final prediction head.
+
+It produces:
+
+- **bounding box coordinates**
+- **class probabilities**
+
+YOLO11 predicts at multiple scales, typically:
+
+- **P3** → small objects
+- **P4** → medium objects
+- **P5** → large objects
+
+This multi-scale strategy is one of the reasons YOLO models perform well across varied object sizes.
+
+---
+
+## **YOLO11 architecture**
+
+YOLO11 follows the standard pattern:
+
+### **Backbone**
+The backbone extracts hierarchical features from the image.
+
+Typical flow:
+
+- Conv
+- Conv
+- C3k2
+- Conv
+- C3k2
+- Conv
+- C3k2
+- Conv
+- C3k2
+- SPPF
+- C2PSA
+
+At this stage, the network has produced deep multi-scale feature maps.
+
+---
+
+### **Neck**
+The neck fuses features across resolutions.
+
+Typical operations:
+
+- Upsample
+- Concat
+- C3k2
+- Upsample
+- Concat
+- C3k2
+- Downsample
+- Concat
+- C3k2
+- Downsample
+- Concat
+- C3k2
+
+This top-down and bottom-up fusion improves detection robustness across object sizes.
+
+---
+
+### **Head**
+The detection head receives the fused feature maps and outputs predictions from multiple pyramid levels:
+
+- **P3/8**
+- **P4/16**
+- **P5/32**
+
+These correspond to different resolutions used for small, medium, and large object detection.
+
+---
+
+## **architecture diagram**
+
+```text
+Input Image
+    |
+    v
++---------+
+|  Conv   |
++---------+
+    |
+    v
++---------+
+|  Conv   |
++---------+
+    |
+    v
++---------+
+|  C3k2   |
++---------+
+    |
+    v
++---------+
+|  Conv   |   -> Downsample
++---------+
+    |
+    v
++---------+
+|  C3k2   |
++---------+
+    |
+    v
++---------+
+|  Conv   |   -> Downsample
++---------+
+    |
+    v
++---------+
+|  C3k2   |
++---------+
+    |
+    v
++---------+
+|  Conv   |   -> Downsample
++---------+
+    |
+    v
++---------+
+|  C3k2   |
++---------+
+    |
+    v
++---------+
+|  SPPF   |
++---------+
+    |
+    v
++---------+
+| C2PSA   |
++---------+
+    |
+    +-------------------------+
+    |                         |
+    v                         |
+  Feature P5                  |
+    |                         |
+    v                         |
++-----------+                 |
+| Upsample  |                 |
++-----------+                 |
+    |                         |
+    v                         |
++-----------+                 |
+| Concat    | <---- Feature P4
++-----------+
+    |
+    v
++-----------+
+|   C3k2    |
++-----------+
+    |
+    v
++-----------+
+| Upsample  |
++-----------+
+    |
+    v
++-----------+
+| Concat    | <---- Feature P3
++-----------+
+    |
+    v
++-----------+
+|   C3k2    |
++-----------+
+    |
+    +---------------------> Detect P3 (small objects)
+    |
+    v
++-----------+
+|   Conv    | -> Downsample
++-----------+
+    |
+    v
++-----------+
+| Concat    |
++-----------+
+    |
+    v
++-----------+
+|   C3k2    |
++-----------+
+    |
+    +---------------------> Detect P4 (medium objects)
+    |
+    v
++-----------+
+|   Conv    | -> Downsample
++-----------+
+    |
+    v
++-----------+
+| Concat    |
++-----------+
+    |
+    v
++-----------+
+|   C3k2    |
++-----------+
+    |
+    +---------------------> Detect P5 (large objects)
+
 ## **Data**
 
 The training data consists of annotated hemocytometer microscopy images from multiple datasets combined into a unified YOLO-style structure. The final dataset is organized as follows:

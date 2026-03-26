@@ -1,9 +1,9 @@
 {
   "model_base": "yolo11s.pt",
-  "best_model": "/Users/hector/Desktop/BioSight/FINAL/modelo_final/Biosight/modelo_fin/weights/best.pt",
-  "data_yaml": "/Users/hector/Desktop/BioSight/FINAL/data/dataset_final/data.yaml",
-  "input_images": "/Users/hector/Desktop/BioSight/FINAL/data/dataset_final/test/images",
-  "output_dir": "/Users/hector/Desktop/BioSight/FINAL/salida_final",
+  "best_model": "/Users/hector/Desktop/BioSight/BioSight/modelo_final/Biosight/modelo_fin/weights/best.pt",
+  "data_yaml": "/Users/hector/Desktop/BioSight/BioSight/data/dataset_final/data.yaml",
+  "input_images": "/Users/hector/Desktop/BioSight/BioSight/data/dataset_final/test/images",
+  "output_dir": "/Users/hector/Desktop/BioSight/BioSight/salida_final",
   "device": "mps",
   "train": {
     "epochs": 100,
@@ -36,10 +36,10 @@
     "conf": 0.43,
     "iou": 0.45,
     "max_det": 3000,
-    "precision": 0.9214200140944326,
-    "recall": 0.8857884637823962,
-    "map50": 0.92666363297187,
-    "map50_95": 0.6419719742277313
+    "precision": 0.9199521007571921,
+    "recall": 0.9700055749309615,
+    "map50": 0.9693287306860605,
+    "map50_95": 0.6748397194169504
   },
   "class_names": {
     "0": "A",
